@@ -1,6 +1,7 @@
 import argparse
 
 from graph import GRAPH
+from cilp import CILP
 
 
 def main(args):
@@ -18,13 +19,24 @@ def main(args):
         'data_dir': args.data_dir
     }
 
-    model = GRAPH(args.data_dir,
+    graph_model = GRAPH(args.data_dir,
+                 args.log_dir,
+                 args.predicate,
+                 params,
+                 n_splits=args.n_splits,
+                 cached=not args.no_cache,
+                 use_gpu=args.use_gpu,
+                 n_samples=args.n_samples)
+    graph_model.init_data()
+
+    cilp_model = CILP(args.data_dir,
                  args.log_dir,
                  params,
                  n_splits=args.n_splits,
                  cached=not args.no_cache,
                  use_gpu=args.use_gpu)
-    model.init_data()
+    cilp_model.init_data()
+    cilp_model.run_cv(args.trepan, args.draw)
 
 
 if __name__ == '__main__':
@@ -36,7 +48,9 @@ if __name__ == '__main__':
     PARSER.add_argument('--trepan', action='store_true')
     PARSER.add_argument('--draw', action='store_true')
     PARSER.add_argument('--dedup', action='store_true')
+    PARSER.add_argument('--predicate')
     PARSER.add_argument('--n-splits', type=int, default=5)
+    PARSER.add_argument('--n-samples', type=int, default=5)
 
     ARGS = PARSER.parse_args()
     main(ARGS)
